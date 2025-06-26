@@ -1,0 +1,55 @@
+{
+  "name": "npm-pkg-template",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint --fix .",
+    "lint-check": "eslint . --no-fix",
+    "format": "prettier --write src",
+    "format-check": "prettier --check src",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky",
+    "test": "vitest",
+    "coverage": "vitest --coverage"
+  },
+  "packageManager": "pnpm@10.12.3+sha512.467df2c586056165580ad6dfb54ceaad94c5a30f80893ebdec5a44c5aa73c205ae4a5bb9d5ed6bb84ea7c249ece786642bbb49d06a307df218d03da41c317417",
+  "keywords": [],
+  "author": "rwv",
+  "license": "MIT",
+  "repository": "https://github.com/rwv/npm-pkg-template",
+  "homepage": "https://github.com/rwv/npm-pkg-template",
+  "bugs": {
+    "url": "https://github.com/rwv/npm-pkg-template/issues"
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "vitest related --run"
+    ]
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@commitlint/types": "^19.8.1",
+    "@eslint/js": "^9.29.0",
+    "@types/node": "^24.0.4",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.29.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.1",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0",
+    "vitest": "^3.2.4"
+  }
+}
