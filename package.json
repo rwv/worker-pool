@@ -1,5 +1,5 @@
 {
-  "name": "npm-pkg-template",
+  "name": "@seedgou/worker-pool",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -25,10 +25,10 @@
   "keywords": [],
   "author": "rwv",
   "license": "MIT",
-  "repository": "https://github.com/rwv/npm-pkg-template",
-  "homepage": "https://github.com/rwv/npm-pkg-template",
+  "repository": "https://github.com/rwv/worker-pool",
+  "homepage": "https://github.com/rwv/worker-pool",
   "bugs": {
-    "url": "https://github.com/rwv/npm-pkg-template/issues"
+    "url": "https://github.com/rwv/worker-pool/issues"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
