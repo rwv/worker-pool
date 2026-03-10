@@ -119,6 +119,7 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
     runs-on: ubuntu-latest
     needs: [test, build]
+    environment: npm
     permissions:
       contents: read
       id-token: write
@@ -135,11 +136,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           registry-url: https://registry.npmjs.org/
-          node-version: lts/*
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
+          node-version: "24"
 
       - name: Download build artifact
         uses: actions/download-artifact@v8
@@ -147,9 +144,8 @@ jobs:
           name: build-assets
           path: lib
 
-      - run: pnpm publish --provenance --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish package to npm
+        run: pnpm publish --access public --ignore-scripts --no-git-checks
 
   publish-to-github-release:
     name: Publish to GitHub Release
