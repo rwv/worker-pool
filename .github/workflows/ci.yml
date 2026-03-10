@@ -158,16 +158,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Download build artifact
         uses: actions/download-artifact@v8
         with:
           name: build-assets
           path: lib
 
-      - name: Create lib.zip
-        run: zip -r lib.zip lib/
+      - name: Pack release tarball
+        run: pnpm pack
 
-      - name: Upload lib.zip to Release Assets
+      - name: Upload package tarball to Release Assets
         uses: softprops/action-gh-release@v2
         with:
-          files: lib.zip
+          files: "*.tgz"
