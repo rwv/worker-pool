@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [latest, 18, 20, 22]
+        node-version: [latest, 20, 22]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     runs-on: ${{ matrix.os }}
@@ -53,10 +53,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Format Check
+      - name: Oxfmt Check
         run: pnpm run format-check
 
-      - name: ESLint Check
+      - name: Oxlint Check
         run: pnpm run lint-check
 
       - name: TypeScript Check
