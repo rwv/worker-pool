@@ -29,8 +29,7 @@ yarn add @seedgou/worker-pool
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
-const createWorker = () =>
-  new Worker("/workers/processor.js", { type: "module" });
+const createWorker = () => new Worker("/workers/processor.js", { type: "module" });
 
 // Create a worker pool from a zero-argument worker factory
 const pool = new WorkerPool(createWorker, {
@@ -111,8 +110,7 @@ worker.onmessage = (event) => {
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
-const createWorker = () =>
-  new Worker("/workers/processor.js", { type: "module" });
+const createWorker = () => new Worker("/workers/processor.js", { type: "module" });
 
 // Create a pool with initial workers and size limit
 const pool = new WorkerPool(createWorker, {
@@ -138,8 +136,7 @@ pool.return(worker4);
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
-const createWorker = () =>
-  new Worker("/workers/processor.js", { type: "module" });
+const createWorker = () => new Worker("/workers/processor.js", { type: "module" });
 
 const pool = new WorkerPool(createWorker, {
   initialWorkers: 2,
@@ -189,7 +186,7 @@ If you need a hard concurrency limit for task execution, add your own queue, sem
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+ or 22.12+
 - pnpm (recommended) or npm
 
 ### Setup
@@ -219,10 +216,10 @@ pnpm format
 - `build`: Compile TypeScript to JavaScript
 - `test`: Run tests with Vitest
 - `coverage`: Run tests with coverage report
-- `lint`: Lint and fix code
-- `lint-check`: Check linting without fixing
-- `format`: Format code with Prettier
-- `format-check`: Check formatting without fixing
+- `lint`: Lint and fix code with Oxlint
+- `lint-check`: Check linting with Oxlint
+- `format`: Format the repository with Oxfmt
+- `format-check`: Check formatting with Oxfmt
 - `type-check`: Run TypeScript type checking
 
 ## License

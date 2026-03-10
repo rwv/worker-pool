@@ -2,54 +2,55 @@
   "name": "@seedgou/worker-pool",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
-  "main": "lib/index.js",
-  "module": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "keywords": [],
+  "homepage": "https://github.com/rwv/worker-pool",
+  "bugs": {
+    "url": "https://github.com/rwv/worker-pool/issues"
+  },
+  "license": "MIT",
+  "author": "rwv",
+  "repository": "https://github.com/rwv/worker-pool",
   "files": [
     "lib",
     "src"
   ],
+  "type": "module",
+  "main": "lib/index.js",
+  "module": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "lint": "eslint --fix .",
-    "lint-check": "eslint . --no-fix",
-    "format": "prettier --write src",
-    "format-check": "prettier --check src",
+    "lint": "oxlint --vitest-plugin --fix --deny-warnings .",
+    "lint-check": "oxlint --vitest-plugin --deny-warnings .",
+    "format": "oxfmt --write .",
+    "format-check": "oxfmt --check .",
     "type-check": "tsc --noEmit",
     "prepare": "husky",
     "test": "vitest",
     "coverage": "vitest --coverage"
   },
-  "packageManager": "pnpm@10.12.3+sha512.467df2c586056165580ad6dfb54ceaad94c5a30f80893ebdec5a44c5aa73c205ae4a5bb9d5ed6bb84ea7c249ece786642bbb49d06a307df218d03da41c317417",
-  "keywords": [],
-  "author": "rwv",
-  "license": "MIT",
-  "repository": "https://github.com/rwv/worker-pool",
-  "homepage": "https://github.com/rwv/worker-pool",
-  "bugs": {
-    "url": "https://github.com/rwv/worker-pool/issues"
-  },
-  "lint-staged": {
-    "*.{js,ts,jsx,tsx}": [
-      "eslint --fix",
-      "prettier --write",
-      "vitest related --run"
-    ]
-  },
   "devDependencies": {
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
     "@commitlint/types": "^20.4.0",
-    "@eslint/js": "^9.29.0",
     "@types/node": "^25.3.3",
     "@vitest/coverage-v8": "^3.2.4",
-    "eslint": "^10.0.3",
     "husky": "^9.1.7",
     "lint-staged": "^16.1.2",
-    "prettier": "^3.6.1",
+    "oxfmt": "^0.37.0",
+    "oxlint": "^1.52.0",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.35.0",
     "vitest": "^3.2.4"
-  }
+  },
+  "lint-staged": {
+    "*.{js,ts,jsx,tsx}": [
+      "oxlint --vitest-plugin --fix --deny-warnings",
+      "oxfmt --write",
+      "vitest related --run"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "oxfmt --write"
+    ]
+  },
+  "packageManager": "pnpm@10.12.3+sha512.467df2c586056165580ad6dfb54ceaad94c5a30f80893ebdec5a44c5aa73c205ae4a5bb9d5ed6bb84ea7c249ece786642bbb49d06a307df218d03da41c317417"
 }
