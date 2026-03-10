@@ -4,11 +4,11 @@
 
 ## Features
 
-- **Object Pool Pattern**: Reuses Web Workers to avoid the overhead of creating and destroying them
-- **Configurable Pool Size**: Set initial and maximum worker counts
+- **Object Pool Pattern**: Reuses idle Web Workers to avoid the overhead of creating and destroying them
+- **Configurable Pool Behavior**: Set initial worker count and idle pool capacity
 - **TypeScript Support**: Full TypeScript definitions included
 - **Zero Dependencies**: Lightweight with no external runtime dependencies
-- **Memory Efficient**: Automatically terminates excess workers when pool reaches capacity
+- **Memory Efficient**: Automatically terminates workers returned after the idle pool reaches capacity
 
 ## Installation
 
@@ -29,8 +29,11 @@ yarn add @seedgou/worker-pool
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
-// Create a worker pool
-const pool = new WorkerPool(Worker, {
+const createWorker = () =>
+  new Worker("/workers/processor.js", { type: "module" });
+
+// Create a worker pool from a zero-argument worker factory
+const pool = new WorkerPool(createWorker, {
   initialWorkers: 2,
   maxWorkers: 5,
 });
@@ -59,22 +62,22 @@ new WorkerPool(workerConstructor, options?)
 
 **Parameters:**
 
-- `workerConstructor`: Function that creates new Worker instances (typically the `Worker` class)
+- `workerConstructor`: Zero-argument factory function that creates and returns a new `Worker`
 - `options` (optional): Configuration object
   - `initialWorkers` (optional): Number of workers to create initially (default: 0)
-  - `maxWorkers` (optional): Maximum number of workers to keep in the pool (default: Infinity)
+  - `maxWorkers` (optional): Maximum number of idle workers to keep in the pool (default: `Infinity`)
 
 #### Methods
 
 ##### `get(): Worker`
 
-Gets a worker from the pool. If the pool is empty, creates and returns a new worker.
+Gets an idle worker from the pool. If the pool is empty, creates and returns a new worker immediately.
 
 **Returns:** A Worker instance ready for use
 
 ##### `return(worker: Worker): void`
 
-Returns a worker to the pool for reuse. If the pool has reached its maximum capacity, the worker will be terminated instead.
+Returns a worker to the pool for reuse. If the idle pool has reached `maxWorkers`, the worker will be terminated instead of being retained.
 
 **Parameters:**
 
@@ -87,8 +90,10 @@ Returns a worker to the pool for reuse. If the pool has reached its maximum capa
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
+const createWorker = () => new Worker("/workers/echo.js", { type: "module" });
+
 // Create a simple worker pool
-const pool = new WorkerPool(Worker);
+const pool = new WorkerPool(createWorker);
 
 // Get a worker and use it
 const worker = pool.get();
@@ -106,10 +111,13 @@ worker.onmessage = (event) => {
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
+const createWorker = () =>
+  new Worker("/workers/processor.js", { type: "module" });
+
 // Create a pool with initial workers and size limit
-const pool = new WorkerPool(Worker, {
+const pool = new WorkerPool(createWorker, {
   initialWorkers: 3, // Start with 3 workers
-  maxWorkers: 10, // Maximum 10 workers in pool
+  maxWorkers: 10, // Keep up to 10 idle workers available for reuse
 });
 
 // The pool starts with 3 workers ready to use
@@ -125,40 +133,39 @@ pool.return(worker3);
 pool.return(worker4);
 ```
 
-### Processing Multiple Tasks
+### Reusing Workers Across Tasks
 
 ```typescript
 import { WorkerPool } from "@seedgou/worker-pool";
 
-const pool = new WorkerPool(Worker, { maxWorkers: 4 });
+const createWorker = () =>
+  new Worker("/workers/processor.js", { type: "module" });
 
-async function processTasks(tasks: string[]) {
-  const promises = tasks.map(async (task) => {
-    const worker = pool.get();
+const pool = new WorkerPool(createWorker, {
+  initialWorkers: 2,
+  maxWorkers: 4,
+});
 
-    return new Promise((resolve, reject) => {
-      worker.onmessage = (event) => {
-        resolve(event.data);
-        pool.return(worker);
-      };
+async function runTask(task: string) {
+  const worker = pool.get();
 
-      worker.onerror = (error) => {
-        reject(error);
-        pool.return(worker);
-      };
-
+  try {
+    return await new Promise((resolve, reject) => {
+      worker.onmessage = (event) => resolve(event.data);
+      worker.onerror = reject;
       worker.postMessage(task);
     });
-  });
-
-  return Promise.all(promises);
+  } finally {
+    worker.onmessage = null;
+    worker.onerror = null;
+    pool.return(worker);
+  }
 }
 
-// Usage
-const tasks = ["task1", "task2", "task3", "task4", "task5"];
-processTasks(tasks).then((results) => {
-  console.log("All tasks completed:", results);
-});
+for (const task of ["task1", "task2", "task3"]) {
+  const result = await runTask(task);
+  console.log("Task completed:", result);
+}
 ```
 
 ## Why Use a Worker Pool?
@@ -166,9 +173,17 @@ processTasks(tasks).then((results) => {
 Web Workers are expensive to create and destroy. A worker pool provides several benefits:
 
 1. **Performance**: Reusing workers eliminates the overhead of worker creation/destruction
-2. **Memory Efficiency**: Limits the number of concurrent workers
-3. **Resource Management**: Automatically handles worker lifecycle
-4. **Scalability**: Better performance under high load
+2. **Memory Efficiency**: Limits how many idle workers are retained for reuse
+3. **Resource Management**: Automatically terminates workers returned after the idle pool is full
+4. **Scalability**: Useful when tasks frequently borrow and return workers
+
+## Important Note About `maxWorkers`
+
+`maxWorkers` does **not** cap the number of workers that can be active at the same time.
+
+`WorkerPool#get()` always returns immediately. If no idle worker is available, it creates a new one. `maxWorkers` only controls how many returned workers are kept around for reuse.
+
+If you need a hard concurrency limit for task execution, add your own queue, semaphore, or scheduler on top of `WorkerPool`.
 
 ## Development
 
