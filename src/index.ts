@@ -4,12 +4,14 @@ export type WorkerConstructor = () => Worker;
  * A pool for managing Web Workers to avoid the overhead of creating and destroying workers.
  *
  * This class implements a simple object pool pattern for Web Workers. When a worker is needed,
- * it first checks if there's an available worker in the pool. If not, it creates a new one.
+ * it first checks if there's an idle worker in the pool. If not, it creates a new one.
  * When a worker is no longer needed, it can be returned to the pool for reuse.
  *
  * @example
  * ```typescript
- * const pool = new WorkerPool(Worker)
+ * const pool = new WorkerPool(
+ *   () => new Worker("/workers/processor.js", { type: "module" }),
+ * )
  *
  * // Get a worker from the pool
  * const worker = pool.get()
@@ -25,20 +27,20 @@ export class WorkerPool {
   /** Set of available workers in the pool */
   private readonly workersPool = new Set<Worker>();
 
-  /** Constructor function for creating new workers when the pool is empty */
+  /** Factory function for creating new workers when the pool is empty */
   private readonly workerConstructor: WorkerConstructor;
 
-  /** Maximum number of workers in the pool */
+  /** Maximum number of idle workers retained in the pool */
   private readonly maxWorkers: number;
 
   /**
    * Creates a new WorkerPool instance.
    *
-   * @param workerConstructor - The constructor function for creating new workers.
-   *                           This is typically the `Worker` class or a custom worker class.
+   * @param workerConstructor - A zero-argument factory function that creates new workers.
+   *                           For example: `() => new Worker("/worker.js", { type: "module" })`
    * @param options - Optional configuration for the worker pool
    * @param options.initialWorkers - Number of workers to create initially (default: 0)
-   * @param options.maxWorkers - Maximum number of workers to keep in the pool (default: Infinity)
+   * @param options.maxWorkers - Maximum number of idle workers to keep in the pool (default: Infinity)
    */
   constructor(
     workerConstructor: WorkerConstructor,
@@ -58,7 +60,7 @@ export class WorkerPool {
   /**
    * Gets a worker from the pool.
    *
-   * If there are available workers in the pool, returns one and removes it from the pool.
+   * If there are idle workers in the pool, returns one and removes it from the pool.
    * If the pool is empty, creates and returns a new worker.
    *
    * @returns A worker instance ready for use
@@ -79,7 +81,7 @@ export class WorkerPool {
    *
    * The worker should be in a clean state before being returned to the pool.
    * Workers returned to the pool will be available for subsequent calls to `get()`.
-   * If the pool has reached its maximum capacity, the worker will be terminated instead.
+   * If the idle pool has reached its maximum capacity, the worker will be terminated instead.
    *
    * @param worker - The worker to return to the pool
    */
