@@ -145,7 +145,7 @@ jobs:
           path: lib
 
       - name: Publish package to npm
-        run: pnpm publish --provenance --access public --ignore-scripts --no-git-checks
+        run: pnpm publish --access public --ignore-scripts --no-git-checks
 
   publish-to-github-release:
     name: Publish to GitHub Release
