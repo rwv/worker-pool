@@ -30,7 +30,7 @@
     "coverage": "vitest --coverage"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.4.3",
+    "@commitlint/cli": "^21.0.0",
     "@commitlint/config-conventional": "^20.4.3",
     "@commitlint/types": "^20.4.0",
     "@types/node": "^25.3.3",
